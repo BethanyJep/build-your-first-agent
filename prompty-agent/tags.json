@@ -1,0 +1,48 @@
+[
+    "bug",
+    "enhancement",
+    "documentation",
+    "duplicate",
+    "wont-fix",
+    "roadmap",
+  
+    "tool:vscode/extension",
+    "tool:invoker",
+    "tool:tracer",
+    "tool:cli",
+  
+    "feature:settings",
+    "feature:new-prompty",
+    "feature:create-code",
+    "feature:run-prompty",
+  
+    "tracer:console-tracer",
+    "tracer:json-tracer",
+    "tracer:custom-tracer",
+  
+    "integration:azure",
+    "integration:openai",
+    "integration:serverless",
+  
+    "asset:model-config",
+    "asset:parameter-hoisting",
+    "asset:template-loading",
+  
+    "provider:openai",
+    "provider:serverless",
+    "provider:azureopenai",
+  
+    "meta:default-config",
+    "meta:schema",
+    "meta:tools",
+  
+    "runtime:python",
+    "runtime:js",
+    "runtime:java",
+    "runtime:csharp",
+  
+    "runtime-fn:load",
+    "runtime-fn:render-template",
+    "runtime-fn:execution-runtime"
+  ]
+  
