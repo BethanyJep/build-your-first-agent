@@ -2,6 +2,7 @@ from flask import Flask, request, render_template
 import json
 from pathlib import Path
 import os
+import ast
 # Import functions from basic.py
 from basic import fetch_github_issues, run
 
@@ -45,9 +46,23 @@ def index():
 
         # Categorize the issue using basic.py's run function
         try:
-            categorized_tags = run(title, tags, description)
-            if not categorized_tags:
-                categorized_tags = []
+            raw_tags = run(title, tags, description)
+            
+            # Process the response based on its type
+            if isinstance(raw_tags, str):
+                # If it's a string, try to parse it as JSON
+                try:
+                    categorized_tags = json.loads(raw_tags)
+                except json.JSONDecodeError:
+                    # If it's not valid JSON, try to evaluate it as a Python literal
+                    try:
+                        categorized_tags = ast.literal_eval(raw_tags)
+                    except (ValueError, SyntaxError):
+                        # If all else fails, split by commas and clean up
+                        categorized_tags = [tag.strip(' "\'[]') for tag in raw_tags.split(',') if tag.strip(' "\'[]')]
+            else:
+                categorized_tags = raw_tags if raw_tags else []
+                
         except Exception as e:
             return render_template("index.html", error=f"Error categorizing issue: {str(e)}")
 
