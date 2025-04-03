@@ -1,6 +1,7 @@
 import json
 import prompty
 from pathlib import Path
+import requests, os, random
 # to use the azure invoker make 
 # sure to install prompty like this:
 # pip install prompty[azure]
@@ -18,8 +19,24 @@ Tracer.add("console", console_tracer)
 json_tracer = PromptyTracer()
 Tracer.add("PromptyTracer", json_tracer.tracer)
 
-# if your prompty file uses environment variables make
-# sure they are loaded properly for correct execution
+# GitHub API settings
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN") # Add your GitHub token here
+
+def fetch_github_issues(repo_url):
+    """Fetch issues from the specified GitHub repository."""
+    api_url = f"https://api.github.com/repos/{repo_url}/issues"
+    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+    response = requests.get(api_url, headers=headers)
+    
+    if response.status_code == 200:
+        issues = response.json()
+        if not issues:
+            print("No issues found in the repository.")
+            return None
+        return random.choice(issues)  # Pick a random issue
+    else:
+        print(f"Failed to fetch issues: {response.status_code} - {response.text}")
+        return None
 
 @trace
 def run(    
@@ -41,11 +58,27 @@ def run(
   return result
 
 if __name__ == "__main__":
-   base = Path(__file__).parent
+    base = Path(__file__).parent
 
-   title = ("Including Image in System Message")
-   description = ("An error arises in the flow, coming up starting from the complete block. It seems like it is caused by placing a static image in the system prompt, since removing it causes the issue to go away. Please let me know if I can provide additional context.")
-   tags = json.loads(Path(base, "tags.json").read_text())
+    # Fetch a random issue from GitHub
+    repo_url = "bethanyjep/paper-blog"  # Replace with your GitHub repository
+    issue = fetch_github_issues(repo_url)
+    if not issue:
+        print("No issue to process.")
+        exit()
 
-   result = run(title, tags, description)
-   print(result)
+    # Extract title and description from the random issue
+    title = issue.get("title", "No Title")
+    description = issue.get("body", "No Description")
+
+    # Load tags from tags.json
+    tags = json.loads(Path(base, "tags.json").read_text())
+
+    # Categorize the issue
+    result = run(title, tags, description)
+
+    # Print the results
+    print(f"Issue: {title}")
+    print(f"Description: {description}")
+    print(f"Categorized Tags: {result}")
+    print("-" * 50)

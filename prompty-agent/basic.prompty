@@ -7,9 +7,10 @@ model:
   api: chat
   configuration:
     type: azure_openai
+    azure_endpoint: ${env:AZURE_OPENAI_ENDPOINT}
+    api_key: ${env:AZURE_OPENAI_KEY}
+    api_version: ${env:AZURE_OPENAI_API_VERSION}
     azure_deployment: gpt-4o
-  parameters:
-    max_tokens: 1500
 sample:
   title: Including Image in System Message
   tags: ${file:tags.json}
@@ -40,7 +41,8 @@ system:
   - Technology or integration (e.g., integration:azure, runtime:python)
   - Conceptual elements (e.g., asset:template-loading)
 
-  Return only a valid JSON array of the issue title, description and tags.
+  Return only a valid JSON array of the issue title, description and tags. If the issue does not fit in any of the 
+  categories, return an empty array with: ["No tags apply to this issue. Please review the issue and try again."]
 
   Example:
   Issue Title: "App crashes when running in Azure CLI"

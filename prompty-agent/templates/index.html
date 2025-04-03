@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Issue Categorizer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Tag a GitHub Issue</h1>
+    <form action="/" method="POST" enctype="multipart/form-data">
+        <label for="repo_url">GitHub Repository (e.g., langchain-ai/langchain):</label><br>
+        <input type="text" id="repo_url" name="repo_url" required><br><br>
+
+        <label for="tags_file">Upload tags.json:</label><br>
+        <input type="file" id="tags_file" name="tags_file" accept=".json" required><br><br>
+
+        <button type="submit">Categorize Issue</button>
+    </form>
+
+    {% if error %}
+    <p style="color: red;">{{ error }}</p>
+    {% endif %}
+</body>
+</html>
