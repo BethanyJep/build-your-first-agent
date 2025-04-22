@@ -2,11 +2,10 @@
 
 # add .run folder
 .runs/*
+.runs
 
 # gitignore for a python and flask application
 __pycache__/
 *.py[cod]
 ./venv/*
-
-venv
-venv/*
+venv/

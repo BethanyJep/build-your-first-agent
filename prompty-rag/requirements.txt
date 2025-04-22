@@ -1,0 +1,12 @@
+Flask
+requests
+python-dotenv
+prompty
+prompty[azure]
+
+python-dotenv
+azure-search-documents==11.6.0b7
+azure-identity
+openai
+
+schedule
