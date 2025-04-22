@@ -1,0 +1,4 @@
+python-dotenv 
+azure-identity 
+azure-ai-projects
+azure-cli
