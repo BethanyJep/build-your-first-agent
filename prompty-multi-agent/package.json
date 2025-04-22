@@ -1,0 +1,33 @@
+{
+  "name": "prompty-multi-agent",
+  "version": "1.0.0",
+  "description": "A multi-agent system for managing GitHub issues using various agents for fetching, classifying, evaluating, and labeling issues.",
+  "main": "src/orchestrator.ts",
+  "scripts": {
+    "start": "ts-node src/orchestrator.ts",
+    "build": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "typescript": "^4.5.2",
+    "ts-node": "^10.4.0",
+    "jest": "^27.0.6"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.2",
+    "@types/node": "^16.11.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/prompty-multi-agent.git"
+  },
+  "keywords": [
+    "github",
+    "issues",
+    "agents",
+    "automation"
+  ],
+  "author": "Bethany Jepchumba",
+  "license": "MIT"
+}
