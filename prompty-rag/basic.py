@@ -7,6 +7,13 @@ import requests, os, random
 # pip install prompty[azure]
 import prompty.azure
 from prompty.tracer import trace, Tracer, console_tracer, PromptyTracer
+from azure.search.documents import SearchClient
+from azure.search.documents.models import (
+    VectorizedQuery
+)
+from openai import AzureOpenAI
+from azure.core.credentials import AzureKeyCredential
+from azure.search.documents.models import QueryType
 from dotenv import load_dotenv
 
 # load environment variables from .env file
@@ -37,25 +44,56 @@ def fetch_github_issues(repo_url):
     else:
         print(f"Failed to fetch issues: {response.status_code} - {response.text}")
         return None
+    
+  # Azure AI Search settings
+SEARCH_SERVICE_ENDPOINT = os.getenv("SEARCH_SERVICE_ENDPOINT")  # Add your Azure Search endpoint
+SEARCH_API_KEY = os.getenv("SEARCH_API_KEY")  # Add your Azure Search API key
+SEARCH_INDEX_NAME = os.getenv("SEARCH_INDEX_NAME")  # Add your Azure Search index name
+
+def query_azure_search(query_text):
+    """Query Azure AI Search for relevant documents and tags."""
+    search_client = SearchClient(
+        endpoint=SEARCH_SERVICE_ENDPOINT,
+        index_name=SEARCH_INDEX_NAME,
+        credential=AzureKeyCredential(SEARCH_API_KEY)
+    )
+
+    # Perform the search
+    results = search_client.search(
+        search_text=query_text,
+        query_type=QueryType.SIMPLE,
+        top=5  # Retrieve top 5 results
+    )
+
+    # Extract content and tags from results
+    documents = [doc["content"] for doc in results]
+    tags = [doc.get("tags", []) for doc in results]  # Assuming "tags" is a field in the index
+
+    # Flatten and deduplicate tags
+    unique_tags = list(set(tag for tag_list in tags for tag in tag_list))
+
+    return documents, unique_tags
 
 @trace
-def run(    
-      title: any,
-      tags: any,
-      description: any
-) -> str:
+def run_with_rag(title, description):
+    """Run Prompty with RAG integration."""
+    # Query Azure Cognitive Search
+    search_results, tags = query_azure_search(description)
 
-  # execute the prompty file
-  result = prompty.execute(
-    "basic.prompty", 
-    inputs={
-      "title": title,
-      "tags": tags,
-      "description": description
-    }
-  )
+    # Combine search results with the original description
+    augmented_description = description + "\n\n" + "\n".join(search_results)
 
-  return result
+    # Execute the Prompty file
+    result = prompty.execute(
+        "basic.prompty",
+        inputs={
+            "title": title,
+            "tags": tags,
+            "description": augmented_description
+        }
+    )
+
+    return result
 
 if __name__ == "__main__":
     base = Path(__file__).parent
@@ -71,11 +109,9 @@ if __name__ == "__main__":
     title = issue.get("title", "No Title")
     description = issue.get("body", "No Description")
 
-    # Load tags from tags.json
-    tags = json.loads(Path(base, "tags.json").read_text())
-
     # Categorize the issue
-    result = run(title, tags, description)
+    result = run_with_rag(title, description)
+    
 
     # Print the results
     print(f"Issue: {title}")
