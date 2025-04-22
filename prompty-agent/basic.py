@@ -80,28 +80,39 @@ def query_azure_search(query_text):
 
 @trace
 def run_with_rag(title, description):
-    """Run Prompty with RAG integration."""
+    """Run Prompty with RAG integration and return a Python list of tags."""
     # Query Azure Cognitive Search
-    search_results, tags = query_azure_search(description)
+    search_results, azure_tags = query_azure_search(description)
 
     # Combine search results with the original description
     augmented_description = description + "\n\n" + "\n".join(search_results)
 
-    # — write out tags.json for basic.prompty to consume —
-    tags_path = Path("tags.json")
-    tags_path.write_text(json.dumps(tags))
+    # write out tags.json for basic.prompty to consume
+    Path("tags.json").write_text(json.dumps(azure_tags))
 
     # Execute the Prompty file
-    result = prompty.execute(
+    raw = prompty.execute(
         "basic.prompty",
         inputs={
             "title": title,
-            "tags": tags,
+            "tags": azure_tags,
             "description": augmented_description
         }
     )
 
-    return result
+    # parse prompty’s JSON output
+    try:
+        parsed = json.loads(raw)
+        # if your prompty returns a bare list:
+        if isinstance(parsed, list):
+            return parsed
+        # if it returns {"tags": [...]}:
+        if isinstance(parsed, dict):
+            return parsed.get("tags", [])
+    except json.JSONDecodeError:
+        print("⚠️  Could not parse RAG output:", raw)
+
+    return []
 
 def fetch_unlabeled_issues(repo_url):
     """Fetch open issues that have no labels yet."""
@@ -117,14 +128,19 @@ def fetch_unlabeled_issues(repo_url):
 
 def label_issue(repo_url, issue_number, labels):
     """Apply the given labels to a GitHub issue."""
+    if not labels:
+        print(f"⏭️  No labels for #{issue_number}, skipping.")
+        return
+
     api_url = f"https://api.github.com/repos/{repo_url}/issues/{issue_number}"
     headers = {"Authorization": f"token {GITHUB_TOKEN}"}
-    data = {"labels": labels}
-    resp = requests.patch(api_url, headers=headers, json=data)
+    resp = requests.patch(api_url, headers=headers, json={"labels": labels})
+
     if resp.status_code == 200:
-        print(f"Labeled issue #{issue_number} with {labels}")
+        print(f"✅  Labeled issue #{issue_number} with {labels}")
     else:
-        print(f"Failed to label issue #{issue_number}: {resp.status_code}")
+        print(f"❌  Failed to label issue #{issue_number}: {resp.status_code}")
+        print("GitHub returned:", resp.json())
 
 def process_issues():
     repo = "bethanyjep/build-your-first-agent"
@@ -135,11 +151,11 @@ def process_issues():
         tags = run_with_rag(title, body)
         if tags:
             label_issue(repo, issue["number"], tags)
-            
+
 if __name__ == "__main__":
     # run every 5 minutes
     schedule.every(1).minutes.do(process_issues)
-    print("Agent started: checking for new issues every 5 minutes.")
+    print("Agent started: checking for new issues every minute.")
     while True:
         schedule.run_pending()
         time.sleep(1)
