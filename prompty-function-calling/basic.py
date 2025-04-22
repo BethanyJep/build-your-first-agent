@@ -61,7 +61,7 @@ if __name__ == "__main__":
     base = Path(__file__).parent
 
     # Fetch a random issue from GitHub
-    repo_url = "bethanyjep/build-your-first-agent"  # Replace with your GitHub repository
+    repo_url = "BethanyJep/build-your-first-agent"  # Replace with your GitHub repository
     issue = fetch_github_issues(repo_url)
     if not issue:
         print("No issue to process.")
