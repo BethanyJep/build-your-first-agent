@@ -96,6 +96,7 @@ def run_with_rag(title, description):
     return result
 
 if __name__ == "__main__":
+    
     base = Path(__file__).parent
 
     # Fetch a random issue from GitHub

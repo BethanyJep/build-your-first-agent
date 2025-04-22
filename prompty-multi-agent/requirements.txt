@@ -1,5 +1,0 @@
-Flask
-requests
-python-dotenv
-prompty
-prompty[azure]
