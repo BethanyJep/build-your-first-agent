@@ -11,13 +11,7 @@ from prompty.tracer import trace, Tracer, console_tracer, PromptyTracer
 import schedule
 import time
 
-from azure.search.documents import SearchClient
-from azure.search.documents.models import (
-    VectorizedQuery
-)
-from openai import AzureOpenAI
-from azure.core.credentials import AzureKeyCredential
-from azure.search.documents.models import QueryType
+# Keep dotenv for any other environment variables we might need
 from dotenv import load_dotenv
 
 # load environment variables from .env file
@@ -49,54 +43,58 @@ def fetch_github_issues(repo_url):
         print(f"Failed to fetch issues: {response.status_code} - {response.text}")
         return None
     
-# Azure AI Search settings
-SEARCH_SERVICE_ENDPOINT = os.getenv("SEARCH_SERVICE_ENDPOINT")  # Add your Azure Search endpoint
-SEARCH_API_KEY = os.getenv("SEARCH_API_KEY")  # Add your Azure Search API key
-SEARCH_INDEX_NAME = os.getenv("SEARCH_INDEX_NAME")  # Add your Azure Search index name
+# Use local tags.json file
+TAGS_FILE_PATH = "tags.json"
+
+def load_tags_from_file():
+    """Load tags from the local tags.json file."""
+    try:
+        with open(TAGS_FILE_PATH, 'r') as f:
+            data = json.load(f)
+        
+        # Extract tag names from the data structure
+        if isinstance(data, dict) and "tags" in data:
+            # Format: {"tags": [{"name": "bug", "description": "..."}, ...]}
+            return [tag["name"] for tag in data["tags"]]
+        elif isinstance(data, list):
+            # Format: ["bug", "enhancement", ...]
+            return data
+        else:
+            print("⚠️ Unexpected tags.json format")
+            return []
+    except (json.JSONDecodeError, FileNotFoundError) as e:
+        print(f"⚠️ Error loading tags.json: {e}")
+        return []
 
 def query_azure_search(query_text):
-    """Query Azure AI Search for relevant documents and tags."""
-    search_client = SearchClient(
-        endpoint=SEARCH_SERVICE_ENDPOINT,
-        index_name=SEARCH_INDEX_NAME,
-        credential=AzureKeyCredential(SEARCH_API_KEY)
-    )
-
-    # Perform the search
-    results = search_client.search(
-        search_text=query_text,
-        query_type=QueryType.SIMPLE,
-        top=5  # Retrieve top 5 results
-    )
-
-    # Extract content and tags from results
-    documents = [doc["content"] for doc in results]
-    tags = [doc.get("tags", []) for doc in results]  # Assuming "tags" is a field in the index
-
-    # Flatten and deduplicate tags
-    unique_tags = list(set(tag for tag_list in tags for tag in tag_list))
+    """Load tags from file and return empty documents list (for compatibility)."""
+    # No document search is performed now, just returning an empty list
+    documents = []
+    
+    # Load tags from the local file
+    tags = load_tags_from_file()
+    
+    # Return documents and tags (to maintain compatibility with existing code)
+    return documents, tags
 
     return documents, unique_tags
 
 @trace
 def run_with_rag(title, description):
     """Run Prompty with RAG integration and return a Python list of tags."""
-    # Query Azure Cognitive Search
-    search_results, azure_tags = query_azure_search(description)
-
-    # Combine search results with the original description
-    augmented_description = description + "\n\n" + "\n".join(search_results)
-
-    # write out tags.json for basic.prompty to consume
-    Path("tags.json").write_text(json.dumps(azure_tags))
-
+    # Load tags from local file
+    _, tags = query_azure_search(description)
+    
+    # No need to augment description since we're not getting search results
+    # Just use the original description
+    
     # Execute the Prompty file
     raw = prompty.execute(
         "basic.prompty",
         inputs={
             "title": title,
-            "tags": azure_tags,
-            "description": augmented_description
+            "tags": tags,
+            "description": description
         }
     )
 

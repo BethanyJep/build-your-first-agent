@@ -1,1 +1,148 @@
-[]
+{
+  "tags": [
+    {
+      "name": "bug",
+      "description": "Issues reporting incorrect behavior, errors, or crashes in the application"
+    },
+    {
+      "name": "enhancement",
+      "description": "Suggestions for new features or improvements to existing functionality"
+    },
+    {
+      "name": "documentation",
+      "description": "Issues related to improving or fixing documentation content"
+    },
+    {
+      "name": "duplicate",
+      "description": "Issues that have already been reported in another ticket"
+    },
+    {
+      "name": "wont-fix",
+      "description": "Issues that have been evaluated but won't be addressed"
+    },
+    {
+      "name": "roadmap",
+      "description": "Feature requests planned for future development cycles"
+    },
+    {
+      "name": "tool:vscode/extension",
+      "description": "Issues related to the Visual Studio Code extension for Prompty"
+    },
+    {
+      "name": "tool:invoker",
+      "description": "Issues with the Prompty component that manages API calls to LLM providers"
+    },
+    {
+      "name": "tool:tracer",
+      "description": "Issues with the tracing functionality for debugging Prompty executions"
+    },
+    {
+      "name": "tool:cli",
+      "description": "Issues with the command-line interface for Prompty"
+    },
+    {
+      "name": "feature:settings",
+      "description": "Issues related to configuration settings and options"
+    },
+    {
+      "name": "feature:new-prompty",
+      "description": "Issues with creating new Prompty template files"
+    },
+    {
+      "name": "feature:create-code",
+      "description": "Issues with code generation capabilities in Prompty"
+    },
+    {
+      "name": "feature:run-prompty",
+      "description": "Issues with executing Prompty templates"
+    },
+    {
+      "name": "tracer:console-tracer",
+      "description": "Issues with console output tracing functionality"
+    },
+    {
+      "name": "tracer:json-tracer",
+      "description": "Issues with JSON format tracing functionality"
+    },
+    {
+      "name": "tracer:custom-tracer",
+      "description": "Issues with implementing custom tracers"
+    },
+    {
+      "name": "integration:azure",
+      "description": "Issues with Azure OpenAI Service integration"
+    },
+    {
+      "name": "integration:openai",
+      "description": "Issues with OpenAI API integration"
+    },
+    {
+      "name": "integration:serverless",
+      "description": "Issues with serverless deployment integration"
+    },
+    {
+      "name": "asset:model-config",
+      "description": "Issues with model configuration in Prompty templates"
+    },
+    {
+      "name": "asset:parameter-hoisting",
+      "description": "Issues with parameter hoisting functionality"
+    },
+    {
+      "name": "asset:template-loading",
+      "description": "Issues with loading and parsing Prompty templates"
+    },
+    {
+      "name": "provider:openai",
+      "description": "Issues specific to the OpenAI provider implementation"
+    },
+    {
+      "name": "provider:serverless",
+      "description": "Issues specific to serverless provider implementation"
+    },
+    {
+      "name": "provider:azureopenai",
+      "description": "Issues specific to Azure OpenAI provider implementation"
+    },
+    {
+      "name": "meta:default-config",
+      "description": "Issues with default configuration settings"
+    },
+    {
+      "name": "meta:schema",
+      "description": "Issues with Prompty schema definitions"
+    },
+    {
+      "name": "meta:tools",
+      "description": "Issues with metadata tools and utilities"
+    },
+    {
+      "name": "runtime:python",
+      "description": "Issues specific to the Python runtime environment"
+    },
+    {
+      "name": "runtime:js",
+      "description": "Issues specific to the JavaScript runtime environment"
+    },
+    {
+      "name": "runtime:java",
+      "description": "Issues specific to the Java runtime environment"
+    },
+    {
+      "name": "runtime:csharp",
+      "description": "Issues specific to the C# runtime environment"
+    },
+    {
+      "name": "runtime-fn:load",
+      "description": "Issues with loading functions in the runtime"
+    },
+    {
+      "name": "runtime-fn:render-template",
+      "description": "Issues with template rendering functionality"
+    },
+    {
+      "name": "runtime-fn:execution-runtime",
+      "description": "Issues with the execution runtime environment"
+    }
+  ]
+}
