@@ -13,7 +13,7 @@ jobs:
       - name: Count emoji reactions and export to CSV
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.PROJECT_TOKEN }}
           script: |
             const fs = require('fs');
             const owner = 'microsoft';
