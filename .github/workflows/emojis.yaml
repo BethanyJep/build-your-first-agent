@@ -16,8 +16,8 @@ jobs:
           github-token: ${{ secrets.PROJECT_TOKEN }}
           script: |
             const fs = require('fs');
-            const owner = 'microsoft';
-            const repo = 'AI_Agents_Hackathon';
+            const owner = 'Azure-Samples';
+            const repo = 'JS-AI-Build-a-thon';
 
             // Step 1: Get all issues
             const issues = await github.paginate(
