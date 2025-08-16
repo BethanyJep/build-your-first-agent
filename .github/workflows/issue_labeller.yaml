@@ -1,0 +1,78 @@
+name: Issue Labeler
+
+on:
+  workflow_dispatch:  # Allow manual triggering
+  issues:
+    types: [opened]  # Trigger when a new issue is created
+
+# Use permissions directive to explicitly set token permissions
+permissions:
+  contents: read
+  issues: write  # Needed to read and label issues
+
+jobs:
+  label-issues:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4.7.1
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r prompty-agent/requirements.txt
+      
+      - name: Run issue labeler
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
+          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        working-directory: prompty-agent
+        run: |
+          python -c "
+          import sys
+          import os
+          import json
+          sys.path.append('.')
+          from basic import fetch_unlabeled_issues, run_with_rag, label_issue
+          
+          # Get repository from GitHub context
+          repo = os.environ.get('GITHUB_REPOSITORY', 'BethanyJep/build-your-first-agent')
+          
+          # Check if this is triggered by a specific issue event
+          if os.environ.get('GITHUB_EVENT_NAME') == 'issues' and os.environ.get('ISSUE_NUMBER'):
+              # Process the specific issue that triggered this workflow
+              issue_number = int(os.environ.get('ISSUE_NUMBER'))
+              title = os.environ.get('ISSUE_TITLE', '')
+              body = os.environ.get('ISSUE_BODY', '')
+              
+              print(f'Processing issue #{issue_number}: {title}')
+              tags = run_with_rag(title, body)
+              if tags:
+                  label_issue(repo, issue_number, tags)
+              else:
+                  print(f'No tags generated for issue #{issue_number}')
+          else:
+              # Fallback: process all unlabeled issues (for manual triggers)
+              print('Processing all unlabeled issues...')
+              issues = fetch_unlabeled_issues(repo)
+              for issue in issues[:5]:  # Limit to 5 issues per run to avoid API limits
+                  title = issue.get('title', '')
+                  body = issue.get('body', '')
+                  print(f'Processing issue #{issue[\"number\"]}: {title}')
+                  tags = run_with_rag(title, body)
+                  if tags:
+                      label_issue(repo, issue['number'], tags)
+                  else:
+                      print(f'No tags generated for issue #{issue[\"number\"]}')
+          "
